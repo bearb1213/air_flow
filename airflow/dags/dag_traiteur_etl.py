@@ -38,7 +38,7 @@ DATA_DIR = "/opt/airflow/data"          # volume Docker : airflow/data/ → /opt
 CONN_SRC = "postgres_traiteur"          # Airflow connection : base source  (traiteur)
 CONN_DWH = "postgres_traiteur_dwh"     # Airflow connection : entrepôt     (traiteur_dwh)
 
-REPORT_EMAILS = ["ton_email@gmail.com"] # ← Modifier avec votre adresse email
+REPORT_EMAILS = ["tandrifydylan@gmail.com"] # ← Modifier avec votre adresse email
 # ──────────────────────────────────────────────────────────────────────────────
 
 
