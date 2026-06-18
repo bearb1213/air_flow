@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 # ── Configuration ──────────────────────────────────────────────────────────────
 DATA_DIR = "/opt/airflow/data"          # volume Docker : airflow/data/ → /opt/airflow/data
 
-CONN_SRC = "postgres_traiteur"          # Airflow connection : base source  (traiteur)
+CONN_SRC = "mysql_traiteur"             # Airflow connection : base source MySQL (traiteur)
 CONN_DWH = "postgres_traiteur_dwh"     # Airflow connection : entrepôt     (traiteur_dwh)
 
 REPORT_EMAILS = ["tandrifydylan@gmail.com"] # ← Modifier avec votre adresse email
@@ -84,12 +84,12 @@ def verifier_sources(**_):
     log.info("Tous les fichiers sources sont présents.")
 
 
-# ── Tâche 2 : extraire depuis PostgreSQL (source) ─────────────────────────────
+# ── Tâche 2 : extraire depuis MySQL (source) ──────────────────────────────────
 
-def extraire_postgres(**_):
-    from airflow.providers.postgres.hooks.postgres import PostgresHook
+def extraire_mysql(**_):
+    from airflow.providers.mysql.hooks.mysql import MySqlHook
 
-    hook = PostgresHook(postgres_conn_id=CONN_SRC)
+    hook = MySqlHook(mysql_conn_id=CONN_SRC)
 
     clients = hook.get_pandas_df("SELECT * FROM clients")
     plats   = hook.get_pandas_df("""
@@ -99,7 +99,7 @@ def extraire_postgres(**_):
         JOIN plat_types pt ON p.type_code = pt.type_code
     """)
 
-    log.info("Extrait %d clients et %d plats depuis la base source.", len(clients), len(plats))
+    log.info("Extrait %d clients et %d plats depuis MySQL.", len(clients), len(plats))
     return {
         "clients": clients.to_json(orient="records"),
         "plats":   plats.to_json(orient="records"),
@@ -134,7 +134,7 @@ def transformer(**context):
     import pandas as pd
 
     ti   = context["ti"]
-    pg   = ti.xcom_pull(task_ids="extraire_postgres")
+    pg   = ti.xcom_pull(task_ids="extraire_mysql")
     fils = ti.xcom_pull(task_ids="extraire_fichiers")
 
     clients  = pd.read_json(pg["clients"])
@@ -439,19 +439,19 @@ default_args = {
 with DAG(
     dag_id="etl_traiteur",
     default_args=default_args,
-    description="ETL Traiteur : Excel + PostgreSQL → Data Warehouse + rapport email",
-    schedule_interval="@daily",
+    description="ETL Traiteur : Excel + MySQL → Data Warehouse PostgreSQL + rapport email",
+    schedule_interval="0 0 1 * *",   # 1er de chaque mois a minuit
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["traiteur", "etl", "dwh"],
 ) as dag:
 
     t_verif  = PythonOperator(task_id="verifier_sources",   python_callable=verifier_sources)
-    t_pg     = PythonOperator(task_id="extraire_postgres",  python_callable=extraire_postgres)
+    t_mysql  = PythonOperator(task_id="extraire_mysql",     python_callable=extraire_mysql)
     t_files  = PythonOperator(task_id="extraire_fichiers",  python_callable=extraire_fichiers)
     t_trans  = PythonOperator(task_id="transformer",        python_callable=transformer)
     t_dims   = PythonOperator(task_id="charger_dimensions", python_callable=charger_dimensions)
     t_facts  = PythonOperator(task_id="charger_faits",      python_callable=charger_faits)
     t_report = PythonOperator(task_id="rapport_final",      python_callable=rapport_final)
 
-    t_verif >> [t_pg, t_files] >> t_trans >> t_dims >> t_facts >> t_report
+    t_verif >> [t_mysql, t_files] >> t_trans >> t_dims >> t_facts >> t_report

@@ -70,10 +70,17 @@ x-airflow-common: &airflow-common
     AIRFLOW__WEBSERVER__SECRET_KEY: 'change_me_in_production'
 
     # ----- Connexions ETL Traiteur -----
-    # Base source : traiteur (tables employes, clients, plats, etc.)
-    AIRFLOW_CONN_POSTGRES_TRAITEUR: "postgresql://postgres:postgres@host.docker.internal:5432/traiteur"
-    # Base data warehouse : traiteur_dwh (tables dim_* et fait_traiteur)
+    # Base source MySQL (tables employes, clients, plats, etc.)
+    AIRFLOW_CONN_MYSQL_TRAITEUR: "mysql://${MYSQL_USER:-root}:${MYSQL_PASSWORD:-root}@host.docker.internal:${MYSQL_PORT:-3306}/traiteur"
+    # Base data warehouse PostgreSQL (tables dim_* et fait_traiteur)
     AIRFLOW_CONN_POSTGRES_TRAITEUR_DWH: "postgresql://postgres:postgres@host.docker.internal:5432/traiteur_dwh"
+
+    # ----- Surveillance email patron (declencheur) -----
+    IMAP_HOST: '${IMAP_HOST:-imap.gmail.com}'
+    IMAP_PORT: '${IMAP_PORT:-993}'
+    IMAP_USER: '${SMTP_USER:-ton_email@gmail.com}'
+    IMAP_PASSWORD: '${SMTP_PASSWORD:-}'
+    BOSS_EMAIL: '${BOSS_EMAIL:-boss@example.com}'
 
     # ----- Email / SMTP (Gmail App Password) -----
     # Creer un App Password sur : https://myaccount.google.com/apppasswords
