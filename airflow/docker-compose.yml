@@ -73,6 +73,22 @@ x-airflow-common: &airflow-common
     AIRFLOW_CONN_POSTGRES_ENTREPOT: "postgresql://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@host.docker.internal:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-airflow}"
     AIRFLOW_CONN_MYSQL_SOURCE: "mysql://${MYSQL_USER:-root}:${MYSQL_PASSWORD:-root}@host.docker.internal:${MYSQL_PORT:-3306}/${MYSQL_DB:-mydb}"
 
+    # ----- Connexions ETL Traiteur -----
+    # Base source opérationnelle (tables employes, clients, plats, etc.)
+    AIRFLOW_CONN_POSTGRES_TRAITEUR: "postgresql://postgres:tsila@host.docker.internal:5432/traiteur"
+    # Base data warehouse (tables dim_* et fait_traiteur)
+    AIRFLOW_CONN_POSTGRES_TRAITEUR_DWH: "postgresql://postgres:tsila@host.docker.internal:5432/traiteur_dwh"
+
+    # ----- Email / SMTP (Gmail App Password) -----
+    # Créer un "App Password" sur https://myaccount.google.com/apppasswords
+    AIRFLOW__SMTP__SMTP_HOST: 'smtp.gmail.com'
+    AIRFLOW__SMTP__SMTP_STARTTLS: 'true'
+    AIRFLOW__SMTP__SMTP_SSL: 'false'
+    AIRFLOW__SMTP__SMTP_PORT: '587'
+    AIRFLOW__SMTP__SMTP_USER: '${SMTP_USER:-ton_email@gmail.com}'
+    AIRFLOW__SMTP__SMTP_PASSWORD: '${SMTP_PASSWORD:-}'
+    AIRFLOW__SMTP__SMTP_MAIL_FROM: '${SMTP_USER:-ton_email@gmail.com}'
+
     # ----- Providers pip supplémentaires -----
     _PIP_ADDITIONAL_REQUIREMENTS: >-
       apache-airflow-providers-postgres
@@ -81,6 +97,7 @@ x-airflow-common: &airflow-common
       openpyxl
       xlrd
       sqlalchemy
+      psycopg2-binary
 
   volumes:
     - ./dags:/opt/airflow/dags
