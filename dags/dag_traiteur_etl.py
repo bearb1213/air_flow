@@ -20,8 +20,10 @@
 
 # ── Imports standard Airflow ──────────────────────────────────────────────────
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.sensors.filesystem import FileSensor
+# from airflow.operators.python import PythonOperator
+# from airflow.sensors.filesystem import FileSensor
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.providers.standard.sensors.filesystem import FileSensor
 from datetime import datetime, timedelta
 import logging
 

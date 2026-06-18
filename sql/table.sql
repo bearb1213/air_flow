@@ -4,7 +4,7 @@ CREATE TABLE employes (
     nom VARCHAR(255) NOT NULL ,
     prenom VARCHAR(255) ,
     email VARCHAR(255) ,
-    salaire_j DECIMAL(10,2)
+    salaire_j DECIMAL(10,2),
     telephone VARCHAR(255)  
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE materiel_types (
 CREATE TABLE materiels (
     materiel_code VARCHAR(255) PRIMARY KEY ,
     label VARCHAR(255) NOT NULL,
-    type_code VARCHAR(255) REFERENCES materiel_type(type_code),
+    type_code VARCHAR(255) REFERENCES materiel_types(type_code),
     longueur DECIMAL(12,2) DEFAULT 0,
     largeur DECIMAL(12,2) DEFAULT 0,
     hauteur DECIMAL(12,2) DEFAULT 0,
@@ -34,7 +34,7 @@ CREATE TABLE materiels (
 
 CREATE TABLE plat_types (
     type_code VARCHAR(255) PRIMARY KEY ,
-    label VARCHAR(255) NOT NULL ,
+    label VARCHAR(255) NOT NULL 
 );
  
 CREATE TABLE plats (
@@ -182,3 +182,5 @@ INSERT INTO plats (plat_code, label, type_code, cout_preparation, prix) VALUES
 ('PLT026', 'Verrines legumes x4',             'PTYP005',  3500.00,   6000.00),
 ('PLT027', 'Cocktail de bienvenue (verre)',   'PTYP006',  3000.00,   5000.00),
 ('PLT028', 'Cocktail petillant au gingembre', 'PTYP006',  3500.00,   6000.00);
+
+
